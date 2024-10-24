@@ -14,7 +14,7 @@ const router = express.Router();
 //products routes
 router.post("/", authmiddleware, isAdmin, createProduct);
 router.get("/:id", getaProduct);
-router.put("/wishlist", authmiddleware, addTowishlist);
+router.put("/wishlist", addTowishlist);
 router.put("/rating", authmiddleware, rating);
 router.put("/:_id", authmiddleware, isAdmin, updateProduct);
 router.delete("/:_id", authmiddleware, isAdmin, deleteProduct);

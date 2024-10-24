@@ -5,7 +5,6 @@ const { json } = require("body-parser");
 const userModel = require("../model/userModel");
 const validateMongoDbId = require("../utils/validationMongodb");
 
-
 const createProduct = asyncHandler(async (req, res) => {
   try {
     if (req.body.title) {
@@ -54,7 +53,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 const getaProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
-    const findProduct = await productModel.findById(id).populate("color")
+    const findProduct = await productModel.findById(id).populate("color");
     res.json(findProduct);
   } catch (error) {
     throw new Error(error);
@@ -104,20 +103,20 @@ const getAllProduct = asyncHandler(async (req, res) => {
       .equals(req.query.category);
     res.json(getAllProduct);
   } catch (error) {
-    throw new Error(error);
+    throw new Error(error.message);
   }
 });
 const addTowishlist = asyncHandler(async (req, res) => {
-  const { _id } = req.user;
-  const { proId } = req.body;
+  const {_id} = req.params;
+  const { productId } = req.body;
   try {
     const user = await userModel.findById(_id);
-    const alreadyadded = user.wishList.find((id) => id.toString() === proId);
+    const alreadyadded = user.wishList.find((id) => id.toString() === productId);
     if (alreadyadded) {
       let user = await userModel.findByIdAndUpdate(
         _id,
         {
-          $pull: { wishList: proId },
+          $pull: { wishList: productId },
         },
         { new: true }
       );
@@ -126,7 +125,7 @@ const addTowishlist = asyncHandler(async (req, res) => {
       let user = await userModel.findByIdAndUpdate(
         _id,
         {
-          $push: { wishList: proId },
+          $push: { wishList: productId },
         },
         { new: true }
       );
@@ -197,5 +196,4 @@ module.exports = {
   deleteProduct,
   addTowishlist,
   rating,
- 
 };

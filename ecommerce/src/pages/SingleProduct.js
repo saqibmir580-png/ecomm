@@ -10,53 +10,49 @@ import { BiGitCompare } from "react-icons/bi";
 import { FaHeart } from "react-icons/fa";
 import Container from "../components/Container";
 import { useDispatch, useSelector } from "react-redux";
-import { getABlog } from "../features/blogs/blogSlice";
 import { getAProduct } from "../features/products/productSlice";
 import { toast } from "react-toastify";
-import { addProductCart, getUserCart } from "../features/user/userSlice";
+import { addProductCart } from "../features/user/userSlice";
 import { FastField } from "formik";
-
+import { getUserCart } from "../features/user/userSlice";
 const SingleProduct = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [color, setColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
-
-
   const [alreadyAdded, setAlreadyAdded] = useState(false);
   const getprodutId = location.pathname.split("/")[2];
   const dispatch = useDispatch();
   const productState = useSelector((state) => state.product.singleproduct);
-
-
-  const CartState = useSelector((state) => state.auth.cartProduct);
-  console.log(CartState);
+  const cartState = useSelector((state) => state.auth?.cartProducts);
+  console.log(cartState)
 
   useEffect(() => {
     dispatch(getAProduct(getprodutId));
     dispatch(getUserCart());
   }, []);
+
   useEffect(() => {
-    // for (let index = 0; index < CartState.length; index++) {
-    //   if (getprodutId === CartState[index]?.productId?._id) {
-    //     setAlreadyAdded(true);
-    //   }
-    // }
-  }, []);
-  const uploadCart = ({prodi}) => {
+    for (let index = 0; index < cartState?.length; index++) {
+      if (getprodutId === cartState[index]?.productId) {
+        setAlreadyAdded(true);
+      }
+    }
+  });
+  const uploadCart = () => {
     if (color === null) {
       toast.error("Please Choose Color");
       return false;
     } else {
       dispatch(
         addProductCart({
-          productId: prodi,
+          productId: productState?._id,
           quantity,
           color,
           price: productState?.price,
         })
-      )
-       
+      );
+      navigate('/cart')
     }
   };
   const props = {
@@ -203,12 +199,12 @@ const SingleProduct = () => {
                       data-bs-togggle="modal"
                       data-bs-target="#staticBackdrop"
                       onClick={() => {
-                        uploadCart({prodi:productState?._id});
+                       alreadyAdded?navigate('/cart'): uploadCart({ prodi: productState?._id });
                       }}
                     >
-                      {alreadyAdded ? "Go To Cart" : "Add To Cart"}
+                      {alreadyAdded &&alreadyAdded ? "Go To Cart" : "Add To Cart"}
                     </button>
-                    <button className="button signup">Buy It Now</button>
+                    {/* <button className="button signup">Buy It Now</button> */}
                   </div>
                 </div>
                 <div className="d-flex align-items-center gap-15">

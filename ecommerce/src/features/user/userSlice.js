@@ -60,6 +60,8 @@ export const getUserProductWishlist = createAsyncThunk(
 export const addProductCart = createAsyncThunk(
   "user/cart/add",
   async (cartData, thunkAPI) => {
+    console.log({cartData});
+    
     try {
       return await authService.addToCart(cartData);
     } catch (error) {
@@ -80,6 +82,60 @@ export const getUserCart = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       return await authService.getCart();
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        "Something went wrong";
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+//delte item from cart
+export const delteCartProduct = createAsyncThunk(
+  "user/cart/product/delete",
+  async (id, thunkAPI) => {
+    
+    try {
+      return await authService.removeProductFromCart(id);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        "Something went wrong";
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+//update
+export const updateCartProduct = createAsyncThunk(
+  "user/cart/product/update",
+  async (cartDetail, thunkAPI) => {
+    
+    try {
+      return await authService.updateProductFromCart(cartDetail);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        "Something went wrong";
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+//create a order
+export const createAnOrder = createAsyncThunk(
+  "user/cart/create-order",
+  async (orderDetail, thunkAPI) => {
+    
+    try {
+      return await authService.createOrder(orderDetail);
     } catch (error) {
       const message =
         (error.response &&
@@ -201,6 +257,63 @@ export const authSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
         toast.error(action.payload);
+      }) .addCase(delteCartProduct.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(delteCartProduct.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.deleteCartProduct = action.payload;
+        if(state.isSuccess){
+          toast.success("Product Deleted From Cart Successfully")
+        }
+      })
+      .addCase(delteCartProduct.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        if(state.isSuccess===false){
+          toast.error("Something Went Wrong")
+        }
+      }) .addCase(updateCartProduct.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateCartProduct.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.updatedCartProduct = action.payload;
+        if(state.isSuccess){
+          toast.success("Product Updated From Cart Successfully")
+        }
+      })
+      .addCase(updateCartProduct.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        if(state.isSuccess===false){
+          toast.error("Something Went Wrong")
+        }
+      }) .addCase(createAnOrder.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(createAnOrder.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.orderedProduct = action.payload;
+        if(state.isSuccess){
+          toast.success("Ordered Successfully")
+        }
+      })
+      .addCase(createAnOrder.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        if(state.isSuccess===false){
+          toast.error("Something Went Wrong")
+        }
       });
   },
 });

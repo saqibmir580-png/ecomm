@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import watch from "../images/watch.jpg";
@@ -6,26 +6,48 @@ import { MdDelete } from "react-icons/md";
 import { Link } from "react-router-dom";
 import Container from "../components/Container";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserCart } from "../features/user/userSlice";
+import {
+  delteCartProduct,
+  getUserCart,
+  updateCartProduct,
+} from "../features/user/userSlice";
 const Cart = () => {
-  // const getTokenFromLocalStorage = localStorage.getItem("customer")
-  // ? JSON.parse(localStorage.getItem("customer"))
-  // : null;
-
-// const config2 = {
-//   headers: {
-//     Authorization: `Bearer ${
-//       getTokenFromLocalStorage !== null ? getTokenFromLocalStorage.token : ""
-//     }`,
-//     Accept: "application/json",
-//   },
-// };
   const dispatch = useDispatch();
+  const [productUpdateDetail, setProductUpdateDetail] = useState(null);
+  const [totalAmount, setTotalAmount] = useState(null);
   const userCartState = useSelector((state) => state.auth.cartProducts);
-
   useEffect(() => {
     dispatch(getUserCart());
   }, []);
+  useEffect(() => {
+    if (productUpdateDetail !== null) {
+      dispatch(
+        updateCartProduct({
+          cartItemId: productUpdateDetail?.cartItemId,
+          quantity: productUpdateDetail?.quantity,
+        })
+      );
+      setTimeout(() => {
+        dispatch(getUserCart());
+      }, 200);
+    }
+  }, [productUpdateDetail]);
+  const deletACartProduct = (id) => {
+    dispatch(delteCartProduct(id));
+    setTimeout(() => {
+      dispatch(getUserCart());
+    }, 200);
+  };
+  useEffect(() => {
+    let sum = 0;
+    for (let index = 0; index < userCartState?.length; index++) {
+      sum =
+        sum +
+        Number(userCartState[index].quantity) * userCartState[index].price;
+        setTotalAmount(sum)
+    }
+  },[userCartState]);
+
   return (
     <>
       <Meta title={"Cart"} />
@@ -51,17 +73,17 @@ const Cart = () => {
                         <img
                           src={watch}
                           className="img-fluid"
-                          alt="product image"
+                          alt="productimage"
                         />
                       </div>
                       <div className="w-75">
-                        <p>{item?.productId.title}</p>
+                        <p>{item?.productId?.title}</p>
                         <p>Size : abc</p>
                         <p className="d-flex gap-3">
                           Color :{" "}
                           <ul className="colors ps-0">
                             <li
-                              style={{ backgroundColor: item?.color.title }}
+                              style={{ backgroundColor: item?.color?.title }}
                             ></li>
                           </ul>{" "}
                         </p>
@@ -79,11 +101,26 @@ const Cart = () => {
                           min={1}
                           max={10}
                           id=""
-                          value={item?.quantity}
+                          value={
+                            productUpdateDetail?.quantity
+                              ? productUpdateDetail?.quantity
+                              : item?.quantity
+                          }
+                          onChange={(e) => {
+                            setProductUpdateDetail({
+                              cartItemId: item?._id,
+                              quantity: e.target?.value,
+                            });
+                          }}
                         />
                       </div>
                       <div>
-                        <MdDelete className="text-danger" />
+                        <MdDelete
+                          onClick={() => {
+                            deletACartProduct(item?._id);
+                          }}
+                          className="text-danger"
+                        />
                       </div>
                     </div>
                     <div className="cart-col-4 ">
@@ -100,13 +137,16 @@ const Cart = () => {
               <Link to="/product" className="button">
                 Continue To Shopping
               </Link>
-              <div className="d-flex flex-column align-items-end">
-                <h4>SubTotal : Rs. 1000</h4>
-                <p>Taxes and shipping calculated at checkout</p>
-                <Link to="/checkout" className="button">
-                  Checkout
-                </Link>
-              </div>
+             {
+              (totalAmount !==null || totalAmount !==0
+              )&&  <div className="d-flex flex-column align-items-end">
+              <h4>SubTotal : Rs.{totalAmount}</h4>
+              <p>Taxes and shipping calculated at checkout</p>
+              <Link to="/checkout" className="button">
+                Checkout
+              </Link>
+            </div>
+             }
             </div>
           </div>
         </div>

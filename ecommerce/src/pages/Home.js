@@ -229,13 +229,13 @@ const Home = () => {
                           src={item?.images[0]?.url}
                           className="img-fluid  mx-auto"
                           width={160}
-                          alt="product image"
+                          alt="product"
                         />
                         <img
                           src={watch1}
                           className="img-fluid mx-auto"
                           width={160}
-                          alt="product image"
+                          alt="product"
                         />
                       </div>
                       <div className="product-details">
@@ -341,12 +341,14 @@ const Home = () => {
           </div>
           <div className="row ">
             {productState &&
-              productState.map((item, index) => {
+              // eslint-disable-next-line array-callback-return
+              productState.map((item, index)=> {
                 if (item?.tags === "special") {
                   return (
                     <SpecialProduct
                       key={index}
                       id={item?._id}
+                      image={item?.images[0]?.url}
                       title={item?.title}
                       brand={item?.brand}
                       totalrating={item?.totalrating.toString()}
@@ -391,13 +393,13 @@ const Home = () => {
                           src={item?.images[0]?.url}
                           className="img-fluid  mx-auto"
                           width={160}
-                          alt="product image"
+                          alt="prodage"
                         />
                         <img
                           src={watch1}
                           className="img-fluid mx-auto"
                           width={160}
-                          alt="product image"
+                          alt="productimage"
                         />
                       </div>
                       <div className="product-details">

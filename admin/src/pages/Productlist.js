@@ -3,8 +3,10 @@ import { Table } from "antd";
 import { BiEdit } from "react-icons/bi";
 import { AiFillDelete } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-import { getProducts } from "../features/product/productSlice";
+import { deleteAProduct, getProducts } from "../features/product/productSlice";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import CustomModal from "../components/CustomModal";
 const columns = [
   {
     title: "SNo",
@@ -41,11 +43,25 @@ const columns = [
 ];
 const Productlist = () => {
   
+  const [open, setOpen] = useState(false);
+  const [productId, setProductId] = useState("");
+  const productState = useSelector((state) => state.product.products);
+  const showModal = (e) => {
+    setOpen(true);
+    setProductId(e);
+  };
+
+  const hideModal = () => {
+    setOpen(false);
+  };
   const dispatch = useDispatch();
+  const deleteProduct = (e) => {
+    dispatch(deleteAProduct(e));
+
   useEffect(() => {
     dispatch(getProducts());
   }, []);
-  const productState = useSelector((state) => state.product.products);
+  
   const data1 = [];
   for (let i = 0; i < productState.length; i++) {
     data1.push({
@@ -53,26 +69,40 @@ const Productlist = () => {
       title: productState[i].title,
       brand: productState[i].brand,
       category: productState[i].category,
-      color: productState[i].color,
+      // color: productState[i].color,
       price: `${productState[i].price}`,
       action: (
         <>
           <Link to="/" className=" fs-3 text-danger">
             <BiEdit />
           </Link>
-          <Link className="ms-3 fs-3 text-danger" to="/">
+          <button className="ms-3 fs-3 text-danger bg-transparent border-0" onClick={() => showModal(productId[i]?.id)}>
             <AiFillDelete />
-          </Link>
+          </button>
         </>
       ),
     });
   }
+
+    setOpen(false);
+    setTimeout(() => {
+      dispatch(getColors());
+    }, 100);
+  };
   return (
     <div>
       <h3 className="mb-4 title">Products</h3>
       <div>
         <Table columns={columns} dataSource={data1} />
       </div>
+      <CustomModal
+        hideModal={hideModal}
+        open={open}
+        performAction={() => {
+          deleteProduct(productId);
+        }}
+        title="Are you sure you want to delete this color?"
+      />
     </div>
   );
 };
